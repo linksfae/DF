@@ -48,6 +48,8 @@ public class MainActivity extends ActionBarActivity {
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "No hay mapa", Toast.LENGTH_SHORT).show();
+
+
                 }
             }
         }
