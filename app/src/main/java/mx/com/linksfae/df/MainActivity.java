@@ -1,18 +1,14 @@
 package mx.com.linksfae.df;
 
-import android.os.AsyncTask;
-
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,11 +16,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
 
 import mx.com.linksfae.df.fragment.EcobiciMapFragment;
 import mx.com.linksfae.df.task.HttpRequestTask;
@@ -33,14 +24,23 @@ public class MainActivity extends ActionBarActivity {
     public static final String ACTIVITY="MainActivity";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private GoogleMap map;
-    private static final LatLng HAMBURG = new LatLng(53.558, 9.927);
+    public static final String FRAGTAG = "EcobiciFragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(checkPlayServices()){
+        if (getSupportFragmentManager().findFragmentByTag(FRAGTAG) == null ) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            EcobiciMapFragment fragment = new EcobiciMapFragment();
+            transaction.add(R.id.container, fragment);
+            transaction.commit();
+        }
+
+
+
+        /*if(checkPlayServices()){
             if (savedInstanceState == null) {
                 map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
                 if(map!=null){
@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
 
                 }
             }
-        }
+        }*/
     }
 
     @Override
@@ -82,21 +82,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder EcobiciMapFragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
 
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-    }
 
     private boolean checkPlayServices() {
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);

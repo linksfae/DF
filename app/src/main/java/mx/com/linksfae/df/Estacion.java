@@ -1,12 +1,13 @@
 package mx.com.linksfae.df;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by FA005216 on 10/02/2015.
  */
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Estacion {
 
     private int id;
@@ -21,6 +22,15 @@ public class Estacion {
     private String nearbyStations;
     private String status;
     private String name;
+    /*private String stationType;
+
+    public String getStationType() {
+        return stationType;
+    }
+
+    public void setStationType(String stationType) {
+        this.stationType = stationType;
+    }*/
 
     public int getId() {
         return id;
