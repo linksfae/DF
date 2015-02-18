@@ -1,4 +1,4 @@
-package mx.com.linksfae.df;
+package mx.com.linksfae.df.bean;
 
 import java.util.List;
 

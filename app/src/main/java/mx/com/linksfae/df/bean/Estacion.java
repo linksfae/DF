@@ -1,4 +1,4 @@
-package mx.com.linksfae.df;
+package mx.com.linksfae.df.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
