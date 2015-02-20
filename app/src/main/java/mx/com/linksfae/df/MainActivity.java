@@ -11,13 +11,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import mx.com.linksfae.df.fragments.EcobiciMapFragment;
 import mx.com.linksfae.df.task.HttpRequestTask;
 import mx.com.linksfae.df.utils.Utils;
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback{
+public class MainActivity extends ActionBarActivity{
     public static final String ACTIVITY="MainActivity";
 
-    private GoogleMap map;
     public static final String FRAGTAG = "EcobiciFragment";
 
     @Override
@@ -25,13 +25,16 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            SupportMapFragment fragment = new SupportMapFragment();
-            fragment.getMapAsync(this);
-            transaction.add(R.id.container, fragment);
-            transaction.commit();
-
         Utils.checkPlayServices(this);
+
+
+
+
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        EcobiciMapFragment fragment = new EcobiciMapFragment();
+        transaction.add(R.id.container, fragment, FRAGTAG);
+        transaction.commit();
     }
 
     @Override
@@ -49,18 +52,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            new HttpRequestTask(getApplicationContext(), map).execute();
+            ((EcobiciMapFragment)Utils.getFragment(this, FRAGTAG)).cargaEstaciones();
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        Log.i(ACTIVITY, "map ready");
-
-        map = googleMap;
-        new HttpRequestTask(getApplicationContext(), map).execute();
     }
 }

@@ -1,5 +1,6 @@
 package mx.com.linksfae.df.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
@@ -29,5 +30,9 @@ public class Utils {
     private static void showErrorDialog(int code, ActionBarActivity context) {
         GooglePlayServicesUtil.getErrorDialog(code, context,
                 REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
+    }
+
+    public static Object getFragment(ActionBarActivity a, String tag){
+        return a.getSupportFragmentManager().findFragmentByTag(tag);
     }
 }

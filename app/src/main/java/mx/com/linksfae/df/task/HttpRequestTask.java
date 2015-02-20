@@ -1,5 +1,6 @@
 package mx.com.linksfae.df.task;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -21,12 +22,15 @@ import mx.com.linksfae.df.R;
  */
 public class HttpRequestTask extends AsyncTask<Void, Void, Estacion[]> {
     public static final String ACTIVITY="HttpRequestTask";
-    private Context context;
+    private Activity context;
     private GoogleMap map;
-    public HttpRequestTask(Context context, GoogleMap map){
+    public HttpRequestTask(Activity context, GoogleMap map){
         this.context=context;
         this.map=map;
     }
+
+
+
 
     @Override
     protected Estacion[] doInBackground(Void... params) {
@@ -67,9 +71,6 @@ public class HttpRequestTask extends AsyncTask<Void, Void, Estacion[]> {
                 marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.medio_disponibles));
             }
             map.addMarker(marker);
-
-
-
         }
     }
 }
