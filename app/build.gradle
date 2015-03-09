@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId "mx.com.linksfae.df"
-        minSdkVersion 15
+        minSdkVersion 17
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"

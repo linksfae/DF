@@ -8,4 +8,6 @@
     <string name="content_value">[content]</string>
     <string name="action_refresh">Refresh</string>
 
+    <string name="stationRefresh">Actualizar</string>
+
 </resources>
