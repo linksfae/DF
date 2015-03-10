@@ -3,12 +3,14 @@ package mx.com.linksfae.df.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+
 /**
  * Created by FA005216 on 10/02/2015.
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Estacion {
+public class Estacion implements Serializable {
 
     private int id;
     private String district;

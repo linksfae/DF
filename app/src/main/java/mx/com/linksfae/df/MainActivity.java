@@ -1,12 +1,19 @@
 package mx.com.linksfae.df;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -16,11 +23,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -30,13 +39,11 @@ import mx.com.linksfae.df.bean.Estacion;
 import mx.com.linksfae.df.utils.Constants;
 import mx.com.linksfae.df.utils.Utils;
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback{
+public class MainActivity extends ActionBarActivity implements OnMapReadyCallback, LocationListener{
     public static final String ACTIVITY="MainActivity";
     private GoogleMap googleMap;
     private Estacion[] estaciones;
     private boolean cargarEstaciones;
-    private HttpRequestTask httpTask;
-
 
     private class HttpRequestTask extends AsyncTask<Void, Void, Estacion[]> {
         @Override
@@ -69,11 +76,17 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        maximizar();
         super.onCreate(savedInstanceState);
+        init(savedInstanceState);
+
+    }
+
+    public void init(Bundle savedInstanceState){
         setContentView(R.layout.activity_main);
         MapFragment googleMapFragment=(MapFragment)getFragmentManager().findFragmentById(R.id.googleMap);
         googleMapFragment.getMapAsync(this);
+//        maximizar();
+        validarGPS();
 
         Utils.checkPlayServices(this);
         if(savedInstanceState==null){
@@ -93,10 +106,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         googleMap.setMyLocationEnabled(true);
 
         LocationManager locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        String bestProvider=locationManager.getBestProvider(new Criteria(), true);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this );
+        String bestProvider=locationManager.getBestProvider(new Criteria(), false);
         Location lastKnowLocation=locationManager.getLastKnownLocation(bestProvider);
         if(lastKnowLocation!=null){
-            Log.i(ACTIVITY, "lastknowlocation");
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude())));
         }
     }
 
@@ -112,30 +126,36 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
          }
     }
     public void llenarMapa(){
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
         if(googleMap!=null){
             googleMap.clear();
-            Log.i(ACTIVITY, estaciones.length+"");
-            for(Estacion e: estaciones){
-                MarkerOptions marker=new MarkerOptions().position(new LatLng(Double.valueOf(e.getLat()), Double.valueOf(e.getLon()))).title(e.getName()).snippet("Disponibles: "+e.getBikes()+"\nLibres: "+e.getSlots());
-                if(e.getStatus().equals("CLS")){
-                    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.no_operativa));
+            if(estaciones!=null){
+                for(Estacion e: estaciones){
+                    boundsBuilder.include(new LatLng(Double.valueOf(e.getLat()),Double.valueOf(e.getLon())));
+                    MarkerOptions marker=new MarkerOptions().position(new LatLng(Double.valueOf(e.getLat()), Double.valueOf(e.getLon()))).title(e.getName()).snippet("Disponibles: "+e.getBikes()+"\nLibres: "+e.getSlots());
+                    if(e.getStatus().equals("CLS")){
+                        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.no_operativa));
+                    }
+                    else
+                    if(e.getBikes()>=5){
+                        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.disponible));
+                    }
+                    else
+                    if(e.getBikes()==0){
+                        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.vacia));
+                    }
+                    else
+                    if(e.getBikes()<5){
+                        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.medio_disponibles));
+                    }
+                    googleMap.addMarker(marker);
                 }
-                else
-                if(e.getBikes()>=5){
-                    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.disponible));
-                }
-                else
-                if(e.getBikes()==0){
-                    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.vacia));
-                }
-                else
-                if(e.getBikes()<5){
-                    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.medio_disponibles));
-                }
-                googleMap.addMarker(marker);
             }
         }
+        LatLngBounds bounds = boundsBuilder.build();
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, -5));
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -150,9 +170,51 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
 
+    public void validarGPS(){
+        final SharedPreferences preferences=getPreferences(MODE_PRIVATE);
+        boolean showMessage=preferences.getBoolean(getString(R.string.preference_dont_ask_again), false);
+        if(!showMessage){
+            LocationManager locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                AlertDialog alertDialog=new AlertDialog.Builder(this).setTitle(R.string.activateGPS)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(i);
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+//                                finish();
+                            }
+                        })
+                        .setMultiChoiceItems(R.array.mc, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int selectedIndex, boolean isChecked) {
+                                if (selectedIndex == 0) {
+                                    SharedPreferences.Editor editor=preferences.edit();
+                                    AlertDialog alertDialog = ((AlertDialog) dialog);
+                                    if (isChecked) {
+                                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                                        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setText(R.string.noThanks);
+                                        editor.putBoolean(getString(R.string.preference_dont_ask_again), true);
 
+                                    } else {
+                                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                                        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setText(R.string.no);
+                                        editor.putBoolean(getString(R.string.preference_dont_ask_again), false);
+                                    }
+                                    editor.commit();
+                                }
+                            }
+                        }).create();
 
-
+                alertDialog.show();
+            }
+        }
+    }
 
 
 
@@ -211,5 +273,23 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public static String getActivity() {
         return ACTIVITY;
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.i(ACTIVITY, "location changed");
+    }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.i(ACTIVITY, "status changed");
+    }
+    @Override
+    public void onProviderEnabled(String provider) {
+        Log.i(ACTIVITY, "provider enabled");
+    }
+    @Override
+    public void onProviderDisabled(String provider) {
+        Log.i(ACTIVITY, "provider disabled");
     }
 }

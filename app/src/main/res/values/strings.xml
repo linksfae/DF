@@ -9,5 +9,15 @@
     <string name="action_refresh">Refresh</string>
 
     <string name="stationRefresh">Actualizar</string>
+    <string name="activateGPS">¿Desea activar el GPS?</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="noThanks">No, gracias</string>
+    <!--<string name="dontAskAgain">No volver a preguntar</string>-->
+
+
+
+
+    <string name="preference_dont_ask_again">Rest</string>
 
 </resources>
