@@ -76,10 +76,8 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         init(savedInstanceState);
-
     }
 
     public void init(Bundle savedInstanceState){
@@ -226,7 +224,6 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
 
 
     public void maximizar(){
-        //final View decorView=getWindow().getDecorView();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getDecorView()
                 .setSystemUiVisibility(
