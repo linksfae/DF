@@ -13,7 +13,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
  */
 public class Utils {
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    public static boolean checkPlayServices(ActionBarActivity context) {
+    public static boolean checkPlayServices(Activity context) {
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
         if (status != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
@@ -27,7 +27,7 @@ public class Utils {
         }
         return true;
     }
-    private static void showErrorDialog(int code, ActionBarActivity context) {
+    private static void showErrorDialog(int code, Activity context) {
         GooglePlayServicesUtil.getErrorDialog(code, context,
                 REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
     }

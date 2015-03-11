@@ -1,5 +1,6 @@
 package mx.com.linksfae.df;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,7 +40,7 @@ import mx.com.linksfae.df.bean.Estacion;
 import mx.com.linksfae.df.utils.Constants;
 import mx.com.linksfae.df.utils.Utils;
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback, LocationListener{
+public class MainActivity extends Activity implements OnMapReadyCallback, LocationListener{
     public static final String ACTIVITY="MainActivity";
     private GoogleMap googleMap;
     private Estacion[] estaciones;
@@ -75,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         init(savedInstanceState);
 
@@ -85,7 +86,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
         MapFragment googleMapFragment=(MapFragment)getFragmentManager().findFragmentById(R.id.googleMap);
         googleMapFragment.getMapAsync(this);
-//        maximizar();
+        maximizar();
         validarGPS();
 
         Utils.checkPlayServices(this);
@@ -224,18 +225,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     public void maximizar(){
+        //final View decorView=getWindow().getDecorView();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getDecorView()
                 .setSystemUiVisibility(
@@ -247,12 +238,18 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                                 | View.INVISIBLE
                 );
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        maximizar();
+        //maximizar();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
     }
 
     public Estacion[] getEstaciones() {
