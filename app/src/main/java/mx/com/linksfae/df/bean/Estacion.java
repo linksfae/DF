@@ -10,12 +10,12 @@ import java.io.Serializable;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Estacion implements Serializable {
+public class Estacion implements Serializable, Comparable<Estacion>{
 
     private int id;
     private String district;
-    private String lon;
-    private String lat;
+    private Double lon;
+    private Double lat;
     private int bikes;
     private int slots;
     private String zip;
@@ -24,6 +24,11 @@ public class Estacion implements Serializable {
     private String nearbyStations;
     private String status;
     private String name;
+
+    private Double distancia;
+
+
+
     /*private String stationType;
 
     public String getStationType() {
@@ -33,6 +38,11 @@ public class Estacion implements Serializable {
     public void setStationType(String stationType) {
         this.stationType = stationType;
     }*/
+
+    @Override
+    public int compareTo(Estacion another) {
+        return distancia.compareTo(another.distancia);
+    }
 
     public int getId() {
         return id;
@@ -50,19 +60,19 @@ public class Estacion implements Serializable {
         this.district = district;
     }
 
-    public String getLon() {
+    public Double getLon() {
         return lon;
     }
 
-    public void setLon(String lon) {
+    public void setLon(Double lon) {
         this.lon = lon;
     }
 
-    public String getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 
@@ -128,5 +138,13 @@ public class Estacion implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Double getDistancia() {
+        return distancia;
+    }
+
+    public void setDistancia(Double distancia) {
+        this.distancia = distancia;
     }
 }

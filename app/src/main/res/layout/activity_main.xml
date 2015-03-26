@@ -1,34 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="mx.com.linksfae.df.fragments.EcobiciMapFragment"
-        android:id="@+id/ecobiciMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
--->
 
 <RelativeLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="match_parent">
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/googleMap"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:name="com.google.android.gms.maps.MapFragment">
+    android:layout_height="match_parent">
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/googleMap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.MapFragment">
 
 
 
-    <Button android:id="@+id/googlemaps_select_location"
+
+
+    </fragment>
+    <Button android:id="@+id/bt_refreshMap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent"
+        android:background="#80FFFFFF"
         android:onClick="btActualizarEstaciones"
         android:text="@string/stationRefresh"/>
-
-</fragment>
+    <Button android:id="@+id/bt_getRoute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="#80FFFFFF"
+        android:onClick="btGetRoute"
+        android:layout_above="@id/bt_refreshMap"
+        android:text="@string/getRouteTo"/>
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_refresh"
+        android:background="#80FFFFFF"
+        android:layout_alignParentRight="true"
+        android:layout_above="@id/bt_getRoute"
+        />
 
 </RelativeLayout>
 

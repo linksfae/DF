@@ -9,12 +9,18 @@
     <string name="action_refresh">Refresh</string>
 
     <string name="stationRefresh">Actualizar</string>
+    <string name="getRouteTo">Ruta</string>
     <string name="activateGPS">¿Desea activar el GPS?</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
     <string name="noThanks">No, gracias</string>
     <!--<string name="dontAskAgain">No volver a preguntar</string>-->
 
+
+
+    <string name="gui_ecobici_bicis_disponibles">Bicis: </string>
+    <string name="gui_ecobici_espacios_vacios">Lugares: </string>
+    <string name="gui_innactive_gps">GPS Deshabilitado. Se usará ubicaci�n por defecto: </string>
 
 
 
