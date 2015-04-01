@@ -9,6 +9,8 @@
     <string name="action_refresh">Refresh</string>
 
     <string name="stationRefresh">Actualizar</string>
+    <string name="bt_hide_stations">Ocultar</string>
+
     <string name="getRouteTo">Ruta</string>
     <string name="activateGPS">¿Desea activar el GPS?</string>
     <string name="yes">Sí</string>

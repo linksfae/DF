@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.PersistableBundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -30,7 +31,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -47,14 +51,19 @@ import mx.com.linksfae.df.routeApi.RoutingListener;
 import mx.com.linksfae.df.utils.Constants;
 import mx.com.linksfae.df.utils.Utils;
 
-public class MainActivity extends Activity implements OnMapReadyCallback, LocationListener{
+public class MainActivity extends Activity implements OnMapReadyCallback, LocationListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, RoutingListener{
     public static final String ACTIVITY="MainActivity";
     private GoogleMap googleMap;
     private Estacion[] estacionesEcobici;
     private View mDecorView;
+    private SlidingUpPanelLayout mLayout;
     private boolean gpsActivo;
+    private boolean drawRoute;
 
     private Location lastKnowLocation;
+    private Marker selectedMarker;
+    private Polyline selectedRoute;
+    private LatLng[] routePoints;
 
     private Routing routing;
 
@@ -89,7 +98,23 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
     public void btActualizarEstaciones(View view){
         dibujarEstaciones(true);
     }
-    public void btGetRoute(View view){
+    public void btHideStations(View view){
+        for(Estacion e: estacionesEcobici){
+            e.getMarker().setVisible(!e.getMarker().isVisible());
+        }
+    }
+    public void btGetLocationToStationRoute(View view){
+        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        Log.d(ACTIVITY, "btGetLocationToStationRout");
+        if(lastKnowLocation!=null && selectedMarker!=null){
+            start=Utils.locationToLatLng(lastKnowLocation);
+            end=selectedMarker.getPosition();
+            routing = new Routing(Routing.TravelMode.WALKING);
+            routing.registerListener(this);
+            routing.execute(start, end);
+        }
+    }
+    public void btGetShortestRoute(View view){
         Log.d(ACTIVITY, "LastknowLocation: "+lastKnowLocation);
 
         if(gpsActivo){
@@ -111,24 +136,55 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
         }
     }
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init(savedInstanceState);
     }
     public void init(Bundle savedInstanceState){
+        setContentView(R.layout.activity_main);
         mDecorView=getWindow().getDecorView();
+        mLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        //mLayout.setParalaxOffset(500);
+        //mLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        //mLayout.setAnchorPoint(.3F);
+        //mLayout.setEnableDragViewTouchEvents(false);
+        //mLayout.setDragView(R.id.bt_map);
+        //mLayout.setTouchEnabled(false);
+        //mLayout.setEnabled(false);
+        mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                //Log.i(ACTIVITY, "onPanelSlide, offset " + slideOffset);
+
+
+            }
+            @Override
+            public void onPanelExpanded(View panel) {
+                Log.i(ACTIVITY, "onPanelExpanded");
+            }
+            @Override
+            public void onPanelCollapsed(View panel) {
+                Log.i(ACTIVITY, "onPanelCollapsed");
+            }
+            @Override
+            public void onPanelAnchored(View panel) {
+                Log.i(ACTIVITY, "onPanelAnchored");
+            }
+            @Override
+            public void onPanelHidden(View panel) {
+                Log.i(ACTIVITY, "onPanelHidden");
+            }
+        });
+
+
         maximizar();
 
-        setContentView(R.layout.activity_main);
+
         MapFragment googleMapFragment=(MapFragment)getFragmentManager().findFragmentById(R.id.googleMap);
         googleMapFragment.getMapAsync(this);
 
-        //routing = new Routing(Routing.TravelMode.WALKING);
-        //routing.registerListener(this);
+
 
         Utils.checkPlayServices(this);
         if(savedInstanceState==null){
@@ -157,6 +213,8 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
                 for(Estacion e: estacionesEcobici){
                     position=new LatLng(e.getLat(),e.getLon());
                     boundsBuilder.include(position);
+
+
                     MarkerOptions marker=new MarkerOptions().position(position).title(e.getName()).snippet(getString(R.string.gui_ecobici_bicis_disponibles) + e.getBikes() + getString(R.string.gui_ecobici_espacios_vacios) + e.getSlots());
 
                     if(e.getStatus().equals("CLS")){
@@ -174,11 +232,29 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
                     if(e.getBikes()<5){
                         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.medio_disponibles));
                     }
-                    googleMap.addMarker(marker);
+
+
+                    e.setMarker(googleMap.addMarker(marker));
                 }
                 LatLngBounds bounds = boundsBuilder.build();
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 30));
             }
+        }
+    }
+    public void drawRoute(LatLng[] points){
+        Log.d(ACTIVITY, "drawing route");
+        if(selectedRoute!=null){
+            selectedRoute.remove();
+        }
+        PolylineOptions polylineOptions=new PolylineOptions();
+        polylineOptions.color(Color.BLUE);
+        polylineOptions.width(10);
+        polylineOptions.add(points);
+
+        Log.d(ACTIVITY, "googleMap: "+googleMap);
+        if(googleMap!=null){
+
+            selectedRoute=googleMap.addPolyline(polylineOptions);
         }
     }
 
@@ -211,14 +287,7 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
     @Override
     public void onLocationChanged(Location location) {
         Log.i(ACTIVITY, "location changed");
-
         lastKnowLocation=location;
-
-
-        //start=Utils.locationToLatLng(location);
-        //end=new LatLng(19.508582, -98.880463);
-        //routing.execute(start, end);
-
     }
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -244,13 +313,35 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
         }
     }
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(Constants.STATE_ESTACIONES, estacionesEcobici);
+        LatLng[] as=selectedRoute.getPoints().toArray(new LatLng[0]);
+
+        outState.putParcelableArray(Constants.STATE_ROUTE, as);
+        Log.d(ACTIVITY, "saveSize: "+as.length+" "+as[0].latitude);
+        super.onSaveInstanceState(outState);
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        estacionesEcobici=(Estacion[])savedInstanceState.getSerializable(Constants.STATE_ESTACIONES);
+        routePoints=(LatLng[])savedInstanceState.getParcelableArray(Constants.STATE_ROUTE);
+        drawRoute=true;
+        Log.d(ACTIVITY, "restoreSize: "+routePoints.length+" "+routePoints[0].latitude);
+
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap=googleMap;
         dibujarEstaciones(false);
+        googleMap.setOnMarkerClickListener(this);
+        googleMap.setOnMapClickListener(this);
         googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-
+                Log.d(ACTIVITY, "infowindowsclick marker");
+                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
             }
         });
 
@@ -258,6 +349,11 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
         googleMap.getUiSettings().setRotateGesturesEnabled(false);
         googleMap.getUiSettings().setTiltGesturesEnabled(false);
         googleMap.setMyLocationEnabled(true);
+
+
+        if(drawRoute){
+            drawRoute(routePoints);
+        }
 
         locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
@@ -269,6 +365,32 @@ public class MainActivity extends Activity implements OnMapReadyCallback, Locati
         else{
             //Log.e(ACTIVITY, "lastKnowLocation: null");
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Log.d(ACTIVITY, "clicked marker");
+        selectedMarker=marker;
+        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        return false;
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        Log.d(ACTIVITY, "onMapClick");
+        selectedMarker=null;
+        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    }
+
+    @Override
+    public void onRoutingFailure() {
+    }
+    @Override
+    public void onRoutingStart() {
+    }
+    @Override
+    public void onRoutingSuccess(PolylineOptions mPolyOptions, Route route) {
+        drawRoute(mPolyOptions.getPoints().toArray(new LatLng[0]));
     }
 }
 

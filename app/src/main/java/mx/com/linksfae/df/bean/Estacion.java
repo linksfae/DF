@@ -2,6 +2,7 @@ package mx.com.linksfae.df.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.android.gms.maps.model.Marker;
 
 import java.io.Serializable;
 
@@ -26,6 +27,7 @@ public class Estacion implements Serializable, Comparable<Estacion>{
     private String name;
 
     private Double distancia;
+    private Marker marker;
 
 
 
@@ -146,5 +148,13 @@ public class Estacion implements Serializable, Comparable<Estacion>{
 
     public void setDistancia(Double distancia) {
         this.distancia = distancia;
+    }
+
+    public Marker getMarker() {
+        return marker;
+    }
+
+    public void setMarker(Marker marker) {
+        this.marker = marker;
     }
 }

@@ -1,45 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/googleMap"
+
+
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        xmlns:sothree="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.google.android.gms.maps.MapFragment">
+        android:gravity="bottom"
+        sothree:umanoPanelHeight="0dp"
+        sothree:umanoShadowHeight="0dp"
+        sothree:umanoParalaxOffset="0dp"
+        sothree:umanoDragView="@+id/dragView"
+        sothree:umanoOverlay="true"
+        sothree:umanoFadeColor="#30000000"
+        >
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/googleMap"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:name="com.google.android.gms.maps.MapFragment">
+            </fragment>
+
+            <Button android:id="@+id/bt_refreshMap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:background="#80FFFFFF"
+                android:onClick="btActualizarEstaciones"
+
+                android:text="@string/stationRefresh"/>
+            <Button android:id="@+id/bt_shortestRoute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="#80FFFFFF"
+                android:onClick="btGetShortestRoute"
+                android:layout_above="@id/bt_refreshMap"
+                android:text="@string/stationRefresh"/>
+            <Button android:id="@+id/bt_hide_stations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="#80FFFFFF"
+                android:onClick="btHideStations"
+                android:layout_above="@id/bt_shortestRoute"
+                android:text="@string/bt_hide_stations"/>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="#55eeeeee"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="false"
+            android:id="@+id/dragView">
+
+            <!--<Button android:id="@+id/bt_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:background="#80FFFFFF"
+                android:onClick="btActualizarEstaciones"
+                android:text="@string/stationRefresh"/>
+                <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_refresh"
+                android:background="#80FFFFFF"
+                android:layout_alignParentRight="true"
+                android:layout_above="@id/bt_getRoute"
+                />
+
+                -->
+            <Button android:id="@+id/bt_getRoute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="#80FFFFFF"
+                android:onClick="btGetLocationToStationRoute"
+
+                android:text="@string/getRouteTo"/>
 
 
 
+        </LinearLayout>
 
-
-    </fragment>
-    <Button android:id="@+id/bt_refreshMap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:background="#80FFFFFF"
-        android:onClick="btActualizarEstaciones"
-        android:text="@string/stationRefresh"/>
-    <Button android:id="@+id/bt_getRoute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:background="#80FFFFFF"
-        android:onClick="btGetRoute"
-        android:layout_above="@id/bt_refreshMap"
-        android:text="@string/getRouteTo"/>
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_action_refresh"
-        android:background="#80FFFFFF"
-        android:layout_alignParentRight="true"
-        android:layout_above="@id/bt_getRoute"
-        />
-
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 </RelativeLayout>
 
 

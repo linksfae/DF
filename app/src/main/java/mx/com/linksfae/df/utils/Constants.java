@@ -12,5 +12,5 @@ public interface Constants {
             "&key=";
 
     String STATE_ESTACIONES="stateEstaciones";
-    String STATE_GOOGLE_MAP="stateGoogleMap";
+    String STATE_ROUTE="stateRoute";
 }
